@@ -1,12 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Almacen.Saas.Application.Common
+﻿namespace Almacen.Saas.Application.Common;
+public class ServiceException
 {
-    internal class ServiceException
-    {
-    }
+
 }
