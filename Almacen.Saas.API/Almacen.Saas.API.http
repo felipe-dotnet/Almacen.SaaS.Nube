@@ -1,0 +1,6 @@
+@Almacen.Saas.API_HostAddress = http://localhost:5179
+
+GET {{Almacen.Saas.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
