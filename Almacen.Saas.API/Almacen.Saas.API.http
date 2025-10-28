@@ -1,6 +1,9 @@
-@Almacen.Saas.API_HostAddress = http://localhost:5179
+@Almacen.Saas.API_HostAddress = https://localhost:5001
 
 GET {{Almacen.Saas.API_HostAddress}}/weatherforecast/
 Accept: application/json
 
 ###
+GET {{Almacen.Saas.API_HostAddress}}/api/test/test
+###
+GET {{Almacen.Saas.API_HostAddress}}/api/test/database

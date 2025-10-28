@@ -36,9 +36,5 @@ public class CrearUsuarioValidator:AbstractValidator<CrearUsuarioDto>
         RuleFor(x => x.CodigoPostal)
             .NotEmpty().WithMessage("El código postal es requerido")
             .Matches(@"^\d{5}$").WithMessage("El código postal debe tener 5 dígitos");
-
-        RuleFor(x => x.RFC)
-            .Matches(@"^[A-ZÑ&]{3,4}\d{6}[A-Z\d]{3}$").WithMessage("RFC inválido")
-            .When(x => !string.IsNullOrEmpty(x.RFC));
     }
 }

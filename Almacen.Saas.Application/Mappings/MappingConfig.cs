@@ -62,7 +62,7 @@ public class MappingConfig
             .NewConfig()
             .Map(dest => dest.Estado, src => src.Estado.ToString())
             .Map(dest => dest.Estado, src => (int)src.Estado)
-            .Map(dest => dest.NombreCliente, src => $"{src.Usuario.Nombre} {src.Usuario.Apellido}")
+            .Map(dest => dest.NombreCliente, src => $"{src.Usuario.Nombre} {src.Usuario.Apellido}");
             //.Map(dest => dest.EmailCliente, src => src.Usuario.Email)
             //.Map(dest => dest.TelefonoCliente, src => src.Usuario.Telefono)
             //.Map(dest => dest.NombreRepartidor, src => src.Repartidor != null ? $"{src.Repartidor.Nombre} {src.Repartidor.Apellido}" : null);

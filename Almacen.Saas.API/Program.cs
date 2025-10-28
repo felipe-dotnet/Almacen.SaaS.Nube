@@ -1,9 +1,13 @@
 ﻿using Almacen.Saas.Application.Mappings;
+using Almacen.Saas.Domain.Interfaces;
 using Almacen.Saas.Infraestructure.Data;
 using Almacen.Saas.Infraestructure.Repositories;
+using Almacen.Saas.Application.Services.Interfaces;
+using Almacen.Saas.Application.Services.Implementations;
 using Mapster;
 using MapsterMapper;
 using Microsoft.EntityFrameworkCore;
+using Almacen.Saas.Domain.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,6 +28,11 @@ builder.Services.AddScoped<IMapper, Mapper>();
 // Obtener la cadena de conexión (viene de User Secrets en Development)
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
     ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<IUsuarioService,UsuarioService>();
+builder.Services.AddScoped<IPedidoService,PedidoService>();
+builder.Services.AddScoped<IPasswordHasher, IPasswordHasher>();
 
 // Configurar DbContext con SQL Server
 builder.Services.AddDbContext<ApplicationDbContext>(options =>

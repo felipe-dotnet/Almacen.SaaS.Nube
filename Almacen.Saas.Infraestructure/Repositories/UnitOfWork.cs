@@ -12,7 +12,7 @@ public class UnitOfWork:IUnitOfWork
     public UnitOfWork(ApplicationDbContext context)
     {
         _context = context;
-        _repositories = new Dictionary<Type, object>();
+        _repositories = [];
     }
 
     public IRepository<T> Repository<T>() where T : class

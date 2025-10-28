@@ -1,4 +1,5 @@
 ﻿using Almacen.Saas.Domain.Entities;
+using Almacen.Saas.Domain.Interfaces;
 using Almacen.Saas.Infraestructure.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
@@ -19,7 +20,7 @@ namespace Almacen.Saas.API.Controllers
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        [HttpGet("health")]
+        [HttpGet("test")]
         public IActionResult HealthCheck()
         {
             return Ok(new

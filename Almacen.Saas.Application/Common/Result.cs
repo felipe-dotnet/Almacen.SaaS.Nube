@@ -5,7 +5,7 @@ public class Result<T>
     public bool Success { get; set; }
     public T? Data { get; set; }
     public string Message { get; set; } = string.Empty;
-    public List<string> Errors { get; set; } = new();
+    public List<string> Errors { get; set; } = [];
 
     public static Result<T> SuccessResult(T data, string message = "Operación exitosa")
     {
@@ -49,7 +49,7 @@ public class Result
         {
             Success = false,
             Message = message,
-            Errors = errors ?? new List<string>()
+            Errors = errors ?? []
         };
     }
 }

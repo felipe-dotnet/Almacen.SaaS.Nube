@@ -1,7 +1,7 @@
 ﻿using Almacen.Saas.Application.Common;
 using Almacen.Saas.Application.DTOs.Usuario;
 
-namespace Almacen.Saas.Application.Interfaces;
+namespace Almacen.Saas.Application.Services.Interfaces;
 
 public interface IUsuarioService
 {
@@ -13,6 +13,6 @@ public interface IUsuarioService
     Task<Result> EliminarAsync(int id);
     Task<Result> CambiarPasswordAsync(CambiarPasswordDto dto);
     Task<Result<IEnumerable<UsuarioDto>>> ObtenerPorRolAsync(int rol);
-    Task<Result<IEnumerable<UsuarioDto>>> ObtenerClientesAsync();
-    Task<Result<IEnumerable<UsuarioDto>>> ObtenerRepartidoresAsync();
+    //Task<Result<IEnumerable<UsuarioDto>>> ObtenerClientesAsync();
+    //Task<Result<IEnumerable<UsuarioDto>>> ObtenerRepartidoresAsync();
 }

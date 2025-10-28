@@ -6,5 +6,6 @@ public enum TipoMovimiento
     CambioEstado = 2,
     BajoInventario = 3,
     Facturacion = 4,
-    Sistema = 5
+    Entrada = 5,
+    Salida = 6,
 }
