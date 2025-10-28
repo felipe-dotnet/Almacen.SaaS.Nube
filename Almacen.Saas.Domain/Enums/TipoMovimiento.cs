@@ -8,4 +8,6 @@ public enum TipoMovimiento
     Facturacion = 4,
     Entrada = 5,
     Salida = 6,
+    Devolucion = 7,
+    Ajuste = 8
 }

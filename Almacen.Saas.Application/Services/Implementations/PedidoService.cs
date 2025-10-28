@@ -554,12 +554,7 @@ public class PedidoService : IPedidoService
     {
         try
         {
-            var pedido = await _unitOfWork.Repository<Pedido>().GetByIdAsync(id);
-
-            if (pedido == null)
-            {
-                throw new Exception("Pedido no encontrado");
-            }
+            var pedido = await _unitOfWork.Repository<Pedido>().GetByIdAsync(id) ?? throw new Exception("Pedido no encontrado");
 
             // Solo permitir eliminar pedidos en estado Pendiente o Cancelado
             if (pedido.Estado != EstadoPedido.Pendiente && pedido.Estado != EstadoPedido.Cancelado)
@@ -625,10 +620,11 @@ public class PedidoService : IPedidoService
                 _logger.LogInformation($"Pedido #{id} eliminado exitosamente");
                 return Result.SuccessResult("Pedido eliminado exitosamente");
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 _logger.LogError($"Error durante la eliminación del pedido #{id}, realizando rollback");
                 await _unitOfWork.RollbackTransactionAsync();
+                return Result.FailureResult("Error al eliminar pedido", [ex.Message]);
             }
         }
         catch (Exception ex)

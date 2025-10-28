@@ -11,4 +11,7 @@ public enum TipoNotificacion
     PedidoAsignado= 7,
     PedidoEnCamino= 8,
     PedidoCancelado= 9,
+    FacturaCreada= 10,
+    FacturaEnviada= 11,
+    FacturaCancelada= 12
 }

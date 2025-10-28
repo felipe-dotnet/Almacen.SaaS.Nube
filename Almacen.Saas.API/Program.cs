@@ -33,6 +33,7 @@ builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IUsuarioService,UsuarioService>();
 builder.Services.AddScoped<IPedidoService,PedidoService>();
 builder.Services.AddScoped<IPasswordHasher, IPasswordHasher>();
+builder.Services.AddScoped<IFacturaService,FacturaService>();
 
 // Configurar DbContext con SQL Server
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
