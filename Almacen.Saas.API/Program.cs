@@ -1,15 +1,25 @@
 ﻿using Almacen.Saas.Application.Mappings;
+using Almacen.Saas.Application.Services.Implementations;
+using Almacen.Saas.Application.Services.Interfaces;
+using Almacen.Saas.Application.Services.Utilities;
 using Almacen.Saas.Domain.Interfaces;
+using Almacen.Saas.Domain.Services;
+using Almacen.Saas.Domain.Settings;
 using Almacen.Saas.Infraestructure.Data;
 using Almacen.Saas.Infraestructure.Repositories;
-using Almacen.Saas.Application.Services.Interfaces;
-using Almacen.Saas.Application.Services.Implementations;
 using Mapster;
 using MapsterMapper;
 using Microsoft.EntityFrameworkCore;
-using Almacen.Saas.Domain.Services;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("Email"));
+builder.Services.Configure<WhatsAppSettings>(builder.Configuration.GetSection("WhatsApp"));
+
+// Registrar servicios
+builder.Services.AddScoped<IEmailService, SmtpEmailService>();
+builder.Services.AddScoped<IWhatsAppService, TwilioWhatsAppService>();
+builder.Services.AddScoped<INotificacionChannelService, NotificacionChannelService>();
 
 // Registrar configuración de Mapster
 MappingConfig.RegisterMappings();
@@ -35,6 +45,7 @@ builder.Services.AddScoped<IPedidoService,PedidoService>();
 builder.Services.AddScoped<IPasswordHasher, IPasswordHasher>();
 builder.Services.AddScoped<IFacturaService,FacturaService>();
 builder.Services.AddScoped<IMovimientoInventarioService,MovimientoInventarioService>();
+builder.Services.AddScoped<INotificacionService, NotificacionService>();
 
 // Configurar DbContext con SQL Server
 builder.Services.AddDbContext<ApplicationDbContext>(options =>

@@ -4,6 +4,7 @@ using Almacen.Saas.Application.Services.Interfaces;
 using Almacen.Saas.Domain.Entities;
 using Almacen.Saas.Domain.Enums;
 using Almacen.Saas.Domain.Interfaces;
+using Almacen.Saas.Domain.Services;
 using Mapster;
 using Microsoft.Extensions.Logging;
 
@@ -13,12 +14,22 @@ public class NotificacionService : INotificacionService
     #region Constructor
 
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IEmailService _emailService;
+    private readonly IWhatsAppService _whatsAppService;
+    private readonly INotificacionChannelService _channelService;
     private readonly ILogger<NotificacionService> _logger;
 
-    public NotificacionService(IUnitOfWork unitOfWork, ILogger<NotificacionService> logger)
+    public NotificacionService(IUnitOfWork unitOfWork,
+        IEmailService emailService,
+        IWhatsAppService whatsAppService,
+        INotificacionChannelService channelService,
+        ILogger<NotificacionService> logger)
     {
         _unitOfWork = unitOfWork;
         _logger = logger;
+        _emailService = emailService;
+        _whatsAppService = whatsAppService;
+        _channelService = channelService;
     }
 
     #endregion
@@ -269,19 +280,20 @@ public class NotificacionService : INotificacionService
             // Obtener usuario para obtener email
             var usuario = await _unitOfWork.Repository<Usuario>().GetByIdAsync(notificacion.UsuarioId) ?? throw new Exception("Usuario no encontrado");
 
-            // TODO: Implementar envío de email usando SendGrid, SMTP, etc.
-            // Ejemplo con SMTP:
-            // using (var client = new SmtpClient("smtp.gmail.com", 587))
-            // {
-            //     client.Credentials = new NetworkCredential("tu-email@gmail.com", "tu-contraseña");
-            //     client.EnableSsl = true;
-            //     var mailMessage = new MailMessage("tu-email@gmail.com", usuario.Email)
-            //     {
-            //         Subject = notificacion.Tipo,
-            //         Body = notificacion.Mensaje
-            //     };
-            //     await client.SendMailAsync(mailMessage);
-            // }
+            var request = new EmailRequest
+            {
+                Destinatario = usuario.Email,
+                Asunto = notificacion.Tipo.ToString(),
+                Cuerpo = notificacion.Mensaje,
+                EsHtml = true
+            };
+
+            var enviado = await _emailService.EnviarEmailAsync(request);
+
+            if (!enviado)
+            {
+                throw new Exception("No se pudo enviar el email");
+            }
 
             notificacion.FechaCreacion = DateTime.UtcNow;
             await _unitOfWork.Repository<Notificacion>().UpdateAsync(notificacion);
@@ -307,16 +319,23 @@ public class NotificacionService : INotificacionService
             // Obtener usuario
             var usuario = await _unitOfWork.Repository<Usuario>().GetByIdAsync(notificacion.UsuarioId) ?? throw new Exception("Usuario no encontrado");
 
-            // TODO: Implementar envío de WhatsApp usando Twilio
-            // Ejemplo con Twilio:
-            // var accountSid = "tu-account-sid";
-            // var authToken = "tu-auth-token";
-            // TwilioClient.Init(accountSid, authToken);
-            // var message = await MessageResource.CreateAsync(
-            //     body: notificacion.Mensaje,
-            //     from: new Twilio.Types.PhoneNumber("+1234567890"),
-            //     to: new Twilio.Types.PhoneNumber(usuario.Telefono)
-            // );
+            if (string.IsNullOrWhiteSpace(usuario.Telefono))
+            {
+                throw new Exception("El usuario no tiene teléfono registrado");
+            }
+
+            var request = new WhatsAppRequest
+            {
+                Telefono = usuario.Telefono,
+                Mensaje = $"{notificacion.Tipo}\n\n{notificacion.Mensaje}"
+            };
+
+            var enviado = await _whatsAppService.EnviarMensajeAsync(request);
+
+            if (!enviado)
+            {
+                throw new Exception("No se pudo enviar el mensaje de WhatsApp");
+            }
 
             notificacion.FechaModificacion = DateTime.UtcNow;
             await _unitOfWork.Repository<Notificacion>().UpdateAsync(notificacion);
@@ -382,7 +401,6 @@ public class NotificacionService : INotificacionService
             return Result.FailureResult("Error al limpiar notificaciones", new List<string> { ex.Message });
         }
     }
-
     public async Task<Result<List<NotificacionDto>>> ObtenerNotificacionesPorTipoAsync(int usuarioId, int tipo)
     {
         try
@@ -402,5 +420,33 @@ public class NotificacionService : INotificacionService
                 "Error al obtener notificaciones", [ex.Message]);
         }
     }
+    public async Task<Result> EnviarPorMultiplesCanalesAsync(int id, params string[] canales)
+    {
+        try
+        {
+            var notificacion = await _unitOfWork.Repository<Notificacion>().GetByIdAsync(id) ?? throw new Exception("Notificación no encontrada");
+            var usuario = await _unitOfWork.Repository<Usuario>().GetByIdAsync(notificacion.UsuarioId) ?? throw new Exception("Usuario no encontrado");
 
+            var resultados = await _channelService.NotificarPorMultiplesCanalesAsync(
+                usuario.Email,
+                usuario.Telefono,
+                notificacion.Tipo.ToString(),
+                notificacion.Mensaje,
+                canales);
+
+            notificacion.FechaModificacion = DateTime.UtcNow;
+            await _unitOfWork.Repository<Notificacion>().UpdateAsync(notificacion);
+            await _unitOfWork.SaveChangesAsync();
+
+            var mensaje = string.Join(", ", resultados.Where(r => r.Value).Select(r => r.Key));
+            _logger.LogInformation($"Notificación #{id} enviada por: {mensaje}");
+
+            return Result.SuccessResult($"Notificación enviada por: {mensaje}");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"Error al enviar notificación: {ex.Message}");
+            return Result.FailureResult("Error al enviar notificación", new List<string> { ex.Message });
+        }
+    }
 }

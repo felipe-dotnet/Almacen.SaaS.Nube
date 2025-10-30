@@ -17,8 +17,6 @@ namespace Almacen.Saas.Application.Services.Interfaces
         Task<Result<int>> ObtenerConteoNoLegidosAsync(int usuarioId);
         Task<Result> LimpiarNotificacionesAntiguasAsync(int diasRetroactivos = 30);
         Task<Result<List<NotificacionDto>>> ObtenerNotificacionesPorTipoAsync(int usuarioId, int tipo);
-
-
-
+        Task<Result> EnviarPorMultiplesCanalesAsync(int id, params string[] canales);
     }
 }
