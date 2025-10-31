@@ -7,4 +7,6 @@ public class EstadisticasVentasDto
     public decimal VentasMes { get; set; }
     public decimal VentasAnio { get; set; }
     public decimal CrecimientoMensual { get; set; }
+    public string Periodo { get; set; } = string.Empty;
+    public decimal PorcentajePago { get; set; }
 }
