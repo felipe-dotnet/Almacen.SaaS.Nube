@@ -3,7 +3,7 @@
 namespace Almacen.Saas.API.Controllers;
 [ApiController]
 [Route("api/[controller]")]
-public abstract class BaseController : Controller
+public abstract class BaseController : ControllerBase
 {
     // <summary>
     /// Retorna un response exitoso

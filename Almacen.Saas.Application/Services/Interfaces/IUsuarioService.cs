@@ -5,7 +5,7 @@ namespace Almacen.Saas.Application.Services.Interfaces;
 
 public interface IUsuarioService
 {
-    Task<Result<IEnumerable<UsuarioDto>>> ObtenerTodosAsync();
+    Task<Result<IEnumerable<UsuarioDto>>> ObtenerTodosAsync(int pageNumber, int PageSize);
     Task<Result<UsuarioDto>> ObtenerPorIdAsync(int id);
     Task<Result<UsuarioDto>> ObtenerPorEmailAsync(string email);
     Task<Result<UsuarioDto>> CrearAsync(CrearUsuarioDto dto);

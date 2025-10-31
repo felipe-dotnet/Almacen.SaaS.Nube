@@ -10,44 +10,17 @@ using Almacen.Saas.Infraestructure.Repositories;
 using Mapster;
 using MapsterMapper;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
+using Swashbuckle.AspNetCore.SwaggerUI;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("Email"));
-builder.Services.Configure<WhatsAppSettings>(builder.Configuration.GetSection("WhatsApp"));
-
-// Registrar servicios
-builder.Services.AddScoped<IEmailService, SmtpEmailService>();
-builder.Services.AddScoped<IWhatsAppService, TwilioWhatsAppService>();
-builder.Services.AddScoped<INotificacionChannelService, NotificacionChannelService>();
-
-// Registrar configuración de Mapster
-MappingConfig.RegisterMappings();
-
-// Registrar IMapper de Mapster
-var config = TypeAdapterConfig.GlobalSettings;
-builder.Services.AddSingleton(config);
-builder.Services.AddScoped<IMapper, Mapper>();
-
-// Add services to the container.
-
-// ============================================
-// 1. CONFIGURACIÓN DE SERVICIOS
-// ============================================
-
-// Obtener la cadena de conexión (viene de User Secrets en Development)
+// ============================================================
+// 1. CONFIGURACIÓN DE CONEXIÓN A BD
+// ============================================================
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
     ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
-builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-builder.Services.AddScoped<IUsuarioService,UsuarioService>();
-builder.Services.AddScoped<IPedidoService,PedidoService>();
-builder.Services.AddScoped<IPasswordHasher, IPasswordHasher>();
-builder.Services.AddScoped<IFacturaService,FacturaService>();
-builder.Services.AddScoped<IMovimientoInventarioService,MovimientoInventarioService>();
-builder.Services.AddScoped<INotificacionService, NotificacionService>();
-
-// Configurar DbContext con SQL Server
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
     options.UseSqlServer(connectionString);
@@ -60,12 +33,83 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     }
 });
 
-// Registrar Unit of Work
-builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
-// ============================================
-// 2. CONFIGURACIÓN DE CORS
-// ============================================
+
+// ============================================================
+// 2. CONFIGURACIÓN DE SETTINGS
+// ============================================================
+builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("Email"));
+builder.Services.Configure<WhatsAppSettings>(builder.Configuration.GetSection("WhatsApp"));
+
+// ============================================================
+// 3. MAPSTER - MAPEO DE OBJETOS
+// ============================================================
+MappingConfig.RegisterMappings();
+var config = TypeAdapterConfig.GlobalSettings;
+builder.Services.AddSingleton(config);
+builder.Services.AddScoped<IMapper, Mapper>();
+
+// ============================================================
+// 4. REGISTRAR SERVICIOS DE DOMINIO
+// ============================================================
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
+builder.Services.AddScoped<IEmailService, SmtpEmailService>();
+builder.Services.AddScoped<IWhatsAppService, TwilioWhatsAppService>();
+builder.Services.AddScoped<INotificacionChannelService, NotificacionChannelService>();
+
+// ============================================================
+// 5. REGISTRAR SERVICIOS DE APLICACIÓN
+// ============================================================
+builder.Services.AddScoped<IUsuarioService, UsuarioService>();
+builder.Services.AddScoped<IProductoService, ProductService>();
+builder.Services.AddScoped<IPedidoService, PedidoService>();
+builder.Services.AddScoped<IFacturaService, FacturaService>();
+builder.Services.AddScoped<IMovimientoInventarioService, MovimientoInventarioService>();
+builder.Services.AddScoped<INotificacionService, NotificacionService>();
+builder.Services.AddScoped<IDashboardService, DashboardService>();
+
+// ============================================================
+// 6. SWAGGER - DOCUMENTACIÓN API
+// ============================================================
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "Almacén SaaS - API REST",
+        Version = "v1.0.0",
+        Description = "API completa para gestión de almacén en la nube. Incluye gestión de productos, pedidos, facturas, inventario y notificaciones.",
+        Contact = new OpenApiContact
+        {
+            Name = "Tu Empresa",
+            Email = "soporte@tuempresa.com",
+            Url = new Uri("https://www.tuempresa.com")
+        },
+        License = new OpenApiLicense
+        {
+            Name = "MIT",
+            Url = new Uri("https://opensource.org/licenses/MIT")
+        },
+        TermsOfService = new Uri("https://www.tuempresa.com/terms")
+    });
+
+    // Comentarios XML para documentación
+    var xmlFile = "Almacen.Saas.API.xml";
+    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+    if (File.Exists(xmlPath))
+    {
+        options.IncludeXmlComments(xmlPath);
+    }
+
+    // Configuración de Swagger
+    options.EnableAnnotations();
+    options.UseInlineDefinitionsForEnums();
+    options.OrderActionsBy(x => x.RelativePath);
+});
+
+// ============================================================
+// 7. CORS - CONFIGURACIÓN DE ORÍGENES PERMITIDOS
+// ============================================================
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowBlazorClient", policy =>
@@ -82,42 +126,71 @@ builder.Services.AddCors(options =>
     });
 });
 
-
-builder.Services.AddControllers();
+// ============================================================
+// 8. CONTROLADORES
+// ============================================================
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+        options.JsonSerializerOptions.DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
+        options.JsonSerializerOptions.PropertyNamingPolicy = null;
+    });
 builder.Services.AddEndpointsApiExplorer();
 
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
-
-// ============================================
-// 4. CONFIGURACIÓN DE LOGGING
-// ============================================
+// ============================================================
+// 9. LOGGING
+// ============================================================
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
 builder.Logging.AddDebug();
 
-
+// ============================================================
+// CONSTRUIR LA APLICACIÓN
+// ============================================================
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// ============================================================
+// 10. MIDDLEWARE
+// ============================================================
+
+// Swagger UI
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
+    app.UseSwagger(c =>
+    {
+        c.RouteTemplate = "swagger/{documentName}/swagger.json";
+    });
+
+    app.UseSwaggerUI(options =>
+    {
+        options.SwaggerEndpoint("/swagger/v1/swagger.json", "Almacén SaaS API v1.0");
+        options.RoutePrefix = string.Empty;
+        options.DefaultModelsExpandDepth(2);
+        options.DefaultModelExpandDepth(2);
+        options.DocExpansion(DocExpansion.List);
+        options.DisplayOperationId();
+        options.DisplayRequestDuration();
+        options.DocumentTitle = "Almacén SaaS API - Swagger";
+    });
 }
 
+// HTTPS Redirection
 app.UseHttpsRedirection();
 
+// CORS
 app.UseCors("AllowBlazorClient");
 
+// Autenticación y Autorización (cuando lo implementes)
 app.UseAuthentication();
 app.UseAuthorization();
 
+// Mapear controladores
 app.MapControllers();
 
-// ============================================
-// 7. INICIALIZACIÓN DE BASE DE DATOS
-// ============================================
-// Aplicar migraciones automáticamente en Development
+// ============================================================
+// 11. INICIALIZACIÓN DE BASE DE DATOS
+// ============================================================
 if (app.Environment.IsDevelopment())
 {
     using var scope = app.Services.CreateScope();
@@ -146,17 +219,18 @@ if (app.Environment.IsDevelopment())
     }
 }
 
-// ============================================
-// 8. INFORMACIÓN DE INICIO
-// ============================================
+// ============================================================
+// 12. INFORMACIÓN DE INICIO
+// ============================================================
 app.Lifetime.ApplicationStarted.Register(() =>
 {
+    Console.WriteLine("\n========================================");
+    Console.WriteLine(" 🚀 Almacén SaaS API Iniciada");
     Console.WriteLine("========================================");
-    Console.WriteLine(" Almacen.Saas API Iniciada");
-    Console.WriteLine($" Environment: {app.Environment.EnvironmentName}");
-    Console.WriteLine($" URL: {app.Urls.FirstOrDefault()}");
-    Console.WriteLine("  Swagger: https://localhost:5001/");
-    Console.WriteLine("========================================");
+    Console.WriteLine($" 📍 Environment: {app.Environment.EnvironmentName}");
+    Console.WriteLine($" 🌐 URL: {app.Urls.FirstOrDefault()}");
+    Console.WriteLine($" 📚 Swagger: {app.Urls.FirstOrDefault()}/");
+    Console.WriteLine("========================================\n");
 });
 
 app.Run();

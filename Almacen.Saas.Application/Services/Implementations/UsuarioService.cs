@@ -183,7 +183,7 @@ public class UsuarioService : IUsuarioService
             : Result<UsuarioDto>.SuccessResult(usuario.Adapt<UsuarioDto>());
     }
 
-    public async Task<Result<IEnumerable<UsuarioDto>>> ObtenerTodosAsync()
+    public async Task<Result<IEnumerable<UsuarioDto>>> ObtenerTodosAsync(int PageNumber, int pageSize)
     {
         var usuarios = await _unitOfWork.Repository<Usuario>().GetAllAsync();
         return Result<IEnumerable<UsuarioDto>>.SuccessResult(usuarios.Adapt<List<UsuarioDto>>());
