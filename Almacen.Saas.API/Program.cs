@@ -1,7 +1,10 @@
-﻿using Almacen.Saas.Application.Mappings;
+﻿using Almacen.Saas.Application.DTOs.Usuario;
+using Almacen.Saas.Application.Mappings;
 using Almacen.Saas.Application.Services.Implementations;
 using Almacen.Saas.Application.Services.Interfaces;
 using Almacen.Saas.Application.Services.Utilities;
+using Almacen.Saas.Domain.Entities;
+using Almacen.Saas.Domain.Enums;
 using Almacen.Saas.Domain.Interfaces;
 using Almacen.Saas.Domain.Services;
 using Almacen.Saas.Domain.Settings;

@@ -1,10 +1,11 @@
-﻿namespace Almacen.Saas.Application.DTOs.Usuario;
+﻿using Almacen.Saas.Domain.Enums;
+
+namespace Almacen.Saas.Application.DTOs.Usuario;
 public class UsuarioDto
 {
     public int Id { get; set; }
     public string Nombre { get; set; } = string.Empty;
     public string Apellido { get; set; } = string.Empty;
-    public string NombreCompleto => $"{Nombre} {Apellido}";
     public string Email { get; set; } = string.Empty;
     public string Telefono { get; set; } = string.Empty;
     public string Rol { get; set; } = string.Empty;
@@ -17,12 +18,17 @@ public class UsuarioDto
     public string Ciudad { get; set; } = string.Empty;
     public string Estado { get; set; } = string.Empty;
     public string CodigoPostal { get; set; } = string.Empty;
-    public string DireccionCompleta => $"{Calle} {NumeroExterior}, {Colonia}, {Ciudad}, {Estado} {CodigoPostal}";
 
-    // Datos Fiscales
+    // Datos Fiscales (opcional para clientes que requieran factura)
     public string? RFC { get; set; }
     public string? RazonSocial { get; set; }
+    public string? DireccionFiscal { get; set; }
 
-    public bool Activo { get; set; }
-    public DateTime FechaCreacion { get; set; }
+    // Auditoría
+    public string CreadoPor { get; set; } = string.Empty;
+    public string? ModificadoPor { get; set; }
+
+    // Navegación
+   // public ICollection<Pedido> Pedidos { get; set; } = [];
+   // public ICollection<Notificacion> Notificaciones { get; set; } = [];
 }

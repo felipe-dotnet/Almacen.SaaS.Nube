@@ -71,7 +71,6 @@ public class NotificacionService : INotificacionService
             return Result<int>.FailureResult("Error al crear notificación", [ex.Message]);
         }
     }
-
     public async Task<Result<NotificacionDto>> ObtenerNotificacion(int id)
     {
         try
@@ -86,7 +85,6 @@ public class NotificacionService : INotificacionService
             return Result<NotificacionDto>.FailureResult("Error al obtener notificación", [ex.Message]);
         }
     }
-
     public async Task<Result<PagedResultDto<NotificacionDto>>> ObtenerNotificacionesUsuario(int usuarioId, int pageNumber = 1, int pageSize = 10)
     {
         try
@@ -135,7 +133,6 @@ public class NotificacionService : INotificacionService
                 "Error al obtener notificaciones", [ex.Message]);
         }
     }
-
     public async Task<Result<PagedResultDto<NotificacionDto>>> ObtenerTodasAsync(int pageNumber, int pageSize)
     {
         try
@@ -173,7 +170,6 @@ public class NotificacionService : INotificacionService
                 "Error al obtener notificaciones", [ex.Message]);
         }
     }
-
     public async Task<Result> MarcarComoLeidaAsync(int id)
     {
         try
@@ -205,7 +201,6 @@ public class NotificacionService : INotificacionService
             return Result.FailureResult("Error al marcar notificación", new List<string> { ex.Message });
         }
     }
-
     public async Task<Result> MarcarTodoComoLeidoAsync(int usuarioId)
     {
         try
@@ -246,7 +241,6 @@ public class NotificacionService : INotificacionService
             return Result.FailureResult("Error al marcar notificaciones", [ex.Message]);
         }
     }
-
     public async Task<Result> EliminarNotificacionAsync(int id)
     {
         try
@@ -270,7 +264,6 @@ public class NotificacionService : INotificacionService
             return Result.FailureResult("Error al eliminar notificación", [ex.Message]);
         }
     }
-
     public async Task<Result> EnviarNotificacionEmailAsync(int id)
     {
         try
@@ -309,7 +302,6 @@ public class NotificacionService : INotificacionService
             return Result.FailureResult("Error al enviar notificación", new List<string> { ex.Message });
         }
     }
-
     public async Task<Result> EnviarNotificacionWhatsAppAsync(int id)
     {
         try
@@ -369,7 +361,6 @@ public class NotificacionService : INotificacionService
             return Result<int>.FailureResult("Error al obtener conteo", new List<string> { ex.Message });
         }
     }
-
     public async Task<Result> LimpiarNotificacionesAntiguasAsync(int diasRetroactivos = 30)
     {
         try

@@ -14,12 +14,21 @@ public class MappingConfig
     public static void RegisterMappings()
     {
         // ============================================
+        // CONFIGURACIÓN GLOBAL
+        // ============================================
+        TypeAdapterConfig.GlobalSettings.Default
+            .PreserveReference(true)
+            .IgnoreNullValues(false)  // No ignores valores null
+            .ShallowCopyForSameType(false);
+
+        // ============================================
         // USUARIO MAPPINGS
         // ============================================
 
         TypeAdapterConfig<Usuario, UsuarioDto>
-            .NewConfig()
-            .Map(dest => dest.Rol, src => src.Rol.ToString());
+        .NewConfig()
+        .Map(dest => dest.Rol, src => src.Rol.ToString());
+
 
         TypeAdapterConfig<CrearUsuarioDto, Usuario>
             .NewConfig()

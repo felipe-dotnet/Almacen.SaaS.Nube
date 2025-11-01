@@ -8,6 +8,7 @@ using Almacen.Saas.Domain.Services;
 using FluentValidation;
 using Mapster;
 using Microsoft.Extensions.Logging;
+using System.Linq;
 
 
 
@@ -42,7 +43,7 @@ public class UsuarioService : IUsuarioService
             // 2. Verificar si el usuario ya existe
             var usuarioExistente = await _unitOfWork.Repository<Usuario>().ExistsAsync(u => u.Email == dto.Email);
 
-            if (!usuarioExistente)
+            if (usuarioExistente)
             {
                 throw new Exception("El usuario con este email ya existe");
             }
@@ -117,7 +118,7 @@ public class UsuarioService : IUsuarioService
                 return Result.FailureResult("Contraseña actual incorrecta", ["La contraseña actual no coincide"]);
             }
 
-            if(dto.PasswordActual != dto.PasswordNuevo)
+            if(dto.ConfirmarPassword != dto.PasswordNuevo)
             {
                 return Result.FailureResult("La nueva contraseña y la confirmación no coinciden", ["La nueva contraseña y la confirmación no coinciden"]);
             }
@@ -164,8 +165,9 @@ public class UsuarioService : IUsuarioService
                 throw new Exception("El email es requerido");
             }
 
-            var usuario = await _unitOfWork.Repository<Usuario>().FindAsync(u => u.Email == email) ?? throw new Exception("Usuario no encontrado");
-            var usuarioDto = usuario.Adapt<UsuarioDto>();
+            var usuario = await _unitOfWork.Repository<Usuario>().GetAsync(u => u.Email == email) ?? throw new Exception("Usuario no encontrado");
+            
+            var usuarioDto = usuario.Adapt<UsuarioDto>(TypeAdapterConfig.GlobalSettings);
             return Result<UsuarioDto>.SuccessResult(usuarioDto);
         }
         catch (Exception ex)

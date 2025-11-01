@@ -136,18 +136,13 @@ public class ProductService : IProductoService
     {
         try
         {
-            var producto = await _unitOfWork.Repository<Producto>().GetByIdAsync(id);
-
-            if (producto == null)
-            {
-                throw new Exception("Producto no encontrado");
-            }
+            var producto = await _unitOfWork.Repository<Producto>().GetByIdAsync(id) ?? throw new Exception("Producto no encontrado");
 
             // Verificar si el producto tiene detalles de pedidos asociados
             var detalles = await _unitOfWork.Repository<DetallePedido>()
                 .FindAsync(d => d.ProductoId == id);
 
-            if (detalles.Count() > 0)
+            if (detalles.Any())
             {
                 throw new Exception(
                     "No se puede eliminar un producto que tiene pedidos asociados");

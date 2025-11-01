@@ -2,7 +2,7 @@
 
 public enum RolUsuario
 {
-    Cliente = 1,
-    Administrador = 2,
+    Administrador = 1,
+    Cliente = 2,
     Repartidor = 3
 }
