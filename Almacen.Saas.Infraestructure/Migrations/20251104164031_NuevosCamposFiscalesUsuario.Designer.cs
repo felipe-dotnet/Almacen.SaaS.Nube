@@ -4,6 +4,7 @@ using Almacen.Saas.Infraestructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Almacen.Saas.Infraestructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251104164031_NuevosCamposFiscalesUsuario")]
+    partial class NuevosCamposFiscalesUsuario
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,83 +24,6 @@ namespace Almacen.Saas.Infraestructure.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
-
-            modelBuilder.Entity("Almacen.Saas.Domain.Entities.DatosFiscales", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<bool>("Activo")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Calle")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<string>("CodigoPostal")
-                        .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
-
-                    b.Property<string>("CreadoPor")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("FechaCreacion")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("FechaModificacion")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("ModificadoPor")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("NumExterior")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<string>("NumInt")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<string>("RFC")
-                        .IsRequired()
-                        .HasMaxLength(14)
-                        .HasColumnType("nvarchar(14)");
-
-                    b.Property<string>("RazonSocial")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<string>("Referencia")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<int>("RegimenFiscalId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("TipoPersonaFiscal")
-                        .HasColumnType("int");
-
-                    b.Property<int>("UsuarioId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("RegimenFiscalId");
-
-                    b.HasIndex("UsuarioId");
-
-                    b.ToTable("DatosFiscales", (string)null);
-                });
 
             modelBuilder.Entity("Almacen.Saas.Domain.Entities.DetallePedido", b =>
                 {
@@ -511,38 +437,6 @@ namespace Almacen.Saas.Infraestructure.Migrations
                     b.ToTable("Productos", (string)null);
                 });
 
-            modelBuilder.Entity("Almacen.Saas.Domain.Entities.RegimenFiscal", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<bool>("Activo")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Codigo")
-                        .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
-
-                    b.Property<string>("Descripcion")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<DateTime>("FechaCreacion")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("FechaModificacion")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("RegimenesFiscales", (string)null);
-                });
-
             modelBuilder.Entity("Almacen.Saas.Domain.Entities.Usuario", b =>
                 {
                     b.Property<int>("Id")
@@ -558,6 +452,10 @@ namespace Almacen.Saas.Infraestructure.Migrations
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("CPFiscal")
+                        .HasMaxLength(14)
+                        .HasColumnType("nvarchar(14)");
 
                     b.Property<string>("Calle")
                         .IsRequired()
@@ -583,6 +481,10 @@ namespace Almacen.Saas.Infraestructure.Migrations
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("DireccionFiscal")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -622,6 +524,18 @@ namespace Almacen.Saas.Infraestructure.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
+                    b.Property<string>("RFC")
+                        .HasMaxLength(13)
+                        .HasColumnType("nvarchar(13)");
+
+                    b.Property<string>("RazonSocial")
+                        .HasMaxLength(250)
+                        .HasColumnType("nvarchar(250)");
+
+                    b.Property<string>("RegimenFiscal")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
                     b.Property<int>("Rol")
                         .HasColumnType("int");
 
@@ -636,25 +550,6 @@ namespace Almacen.Saas.Infraestructure.Migrations
                         .IsUnique();
 
                     b.ToTable("Usuarios", (string)null);
-                });
-
-            modelBuilder.Entity("Almacen.Saas.Domain.Entities.DatosFiscales", b =>
-                {
-                    b.HasOne("Almacen.Saas.Domain.Entities.RegimenFiscal", "RegimenFiscal")
-                        .WithMany()
-                        .HasForeignKey("RegimenFiscalId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("Almacen.Saas.Domain.Entities.Usuario", "Usuario")
-                        .WithMany("DatosFiscales")
-                        .HasForeignKey("UsuarioId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("RegimenFiscal");
-
-                    b.Navigation("Usuario");
                 });
 
             modelBuilder.Entity("Almacen.Saas.Domain.Entities.DetallePedido", b =>
@@ -743,8 +638,6 @@ namespace Almacen.Saas.Infraestructure.Migrations
 
             modelBuilder.Entity("Almacen.Saas.Domain.Entities.Usuario", b =>
                 {
-                    b.Navigation("DatosFiscales");
-
                     b.Navigation("Notificaciones");
 
                     b.Navigation("Pedidos");

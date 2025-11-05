@@ -1,4 +1,6 @@
-﻿using Almacen.Saas.Application.DTOs.Factura;
+﻿using Almacen.Saas.Application.DTOs.DatosFiscales;
+using Almacen.Saas.Application.DTOs.DatosFiscalesñ;
+using Almacen.Saas.Application.DTOs.Factura;
 using Almacen.Saas.Application.DTOs.MovimientoInventario;
 using Almacen.Saas.Application.DTOs.Notificacion;
 using Almacen.Saas.Application.DTOs.Pedido;
@@ -13,13 +15,13 @@ public class MappingConfig
 {
     public static void RegisterMappings()
     {
-        // ============================================
-        // CONFIGURACIÓN GLOBAL
-        // ============================================
-        TypeAdapterConfig.GlobalSettings.Default
-            .PreserveReference(true)
-            .IgnoreNullValues(false)  // No ignores valores null
-            .ShallowCopyForSameType(false);
+        //// ============================================
+        //// CONFIGURACIÓN GLOBAL
+        //// ============================================
+        //TypeAdapterConfig.GlobalSettings.Default
+        //    .PreserveReference(true)
+        //    .IgnoreNullValues(false)  // No ignores valores null
+        //    .ShallowCopyForSameType(false);
 
         // ============================================
         // USUARIO MAPPINGS
@@ -133,6 +135,20 @@ public class MappingConfig
             .NewConfig()
             .Map(dest => dest.Tipo, src => (TipoNotificacion)src.TipoNotificacion)
             .Map(dest => dest.Leida, src => false);
+
+        // ============================================
+        // DATOS FISCALES MAPPINGS
+        // ============================================
+
+        TypeAdapterConfig<DatosFiscales, DatosFiscalesDto>
+            .NewConfig();
+
+        TypeAdapterConfig<ActualizarDatosFiscalesDto, DatosFiscales>
+            .NewConfig();
+
+        TypeAdapterConfig<CrearDatosFiscalesDto, DatosFiscales>
+            .NewConfig()
+            .Map(dest => dest.CreadoPor, src => "Sistema");
     }
 }
 

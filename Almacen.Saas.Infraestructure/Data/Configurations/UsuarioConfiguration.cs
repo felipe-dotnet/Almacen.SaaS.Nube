@@ -60,16 +60,6 @@ public class UsuarioConfiguration : IEntityTypeConfiguration<Usuario>
         builder.Property(u => u.CodigoPostal)
             .HasMaxLength(10);
 
-        // Datos Fiscales
-        builder.Property(u => u.RFC)
-            .HasMaxLength(13);
-
-        builder.Property(u => u.RazonSocial)
-            .HasMaxLength(250);
-
-        builder.Property(u => u.DireccionFiscal)
-            .HasMaxLength(500);
-
         // Auditoría
         builder.Property(u => u.CreadoPor)
             .IsRequired()
@@ -88,5 +78,10 @@ public class UsuarioConfiguration : IEntityTypeConfiguration<Usuario>
             .WithOne(n => n.Usuario)
             .HasForeignKey(n => n.UsuarioId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasMany(x => x.DatosFiscales)
+            .WithOne(u => u.Usuario)
+            .HasForeignKey(u=>u.UsuarioId)
+            .OnDelete(DeleteBehavior.Cascade);            
     }
 }

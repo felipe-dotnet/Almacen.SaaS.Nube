@@ -6,9 +6,8 @@ public class CrearUsuarioDto
     public string Email { get; set; } = string.Empty;
     public string Telefono { get; set; } = string.Empty;
     public string Password { get; set; } = string.Empty;
-    public int Rol { get; set; } = 1; // Cliente por defecto
+    public int Rol { get; set; } = 1;
 
-    // Dirección
     public string Calle { get; set; } = string.Empty;
     public string? NumeroExterior { get; set; }
     public string? NumeroInterior { get; set; }

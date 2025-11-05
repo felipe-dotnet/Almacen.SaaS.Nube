@@ -5,10 +5,8 @@ using Almacen.Saas.Application.Validators.Usuario;
 using Almacen.Saas.Domain.Entities;
 using Almacen.Saas.Domain.Interfaces;
 using Almacen.Saas.Domain.Services;
-using FluentValidation;
 using Mapster;
 using Microsoft.Extensions.Logging;
-using System.Linq;
 
 
 
@@ -118,7 +116,7 @@ public class UsuarioService : IUsuarioService
                 return Result.FailureResult("Contraseña actual incorrecta", ["La contraseña actual no coincide"]);
             }
 
-            if(dto.ConfirmarPassword != dto.PasswordNuevo)
+            if (dto.ConfirmarPassword != dto.PasswordNuevo)
             {
                 return Result.FailureResult("La nueva contraseña y la confirmación no coinciden", ["La nueva contraseña y la confirmación no coinciden"]);
             }
@@ -166,7 +164,7 @@ public class UsuarioService : IUsuarioService
             }
 
             var usuario = await _unitOfWork.Repository<Usuario>().GetAsync(u => u.Email == email) ?? throw new Exception("Usuario no encontrado");
-            
+
             var usuarioDto = usuario.Adapt<UsuarioDto>(TypeAdapterConfig.GlobalSettings);
             return Result<UsuarioDto>.SuccessResult(usuarioDto);
         }

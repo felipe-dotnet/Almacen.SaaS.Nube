@@ -84,9 +84,9 @@ builder.Services.AddSwaggerGen(options =>
         Description = "API completa para gestión de almacén en la nube. Incluye gestión de productos, pedidos, facturas, inventario y notificaciones.",
         Contact = new OpenApiContact
         {
-            Name = "Tu Empresa",
-            Email = "soporte@tuempresa.com",
-            Url = new Uri("https://www.tuempresa.com")
+            Name = "Aplicaciones-TI",
+            Email = "soporte@aplicacionesti.com.mx",
+            Url = new Uri("https://aplicacionesti.com.mx")
         },
         License = new OpenApiLicense
         {
@@ -184,7 +184,7 @@ app.UseHttpsRedirection();
 // CORS
 app.UseCors("AllowBlazorClient");
 
-// Autenticación y Autorización (cuando lo implementes)
+// Autenticación y Autorización
 app.UseAuthentication();
 app.UseAuthorization();
 

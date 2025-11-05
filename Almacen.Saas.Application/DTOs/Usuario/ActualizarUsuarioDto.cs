@@ -16,8 +16,4 @@ public class ActualizarUsuarioDto
     public string Estado { get; set; } = string.Empty;
     public string CodigoPostal { get; set; } = string.Empty;
 
-    // Datos Fiscales
-    public string? RFC { get; set; }
-    public string? RazonSocial { get; set; }
-    public string? DireccionFiscal { get; set; }
 }
