@@ -1,13 +1,10 @@
 using Almacen.Saas.Application.DTO.Authentication;
 using Almacen.Saas.Application.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
 
 namespace Almacen.Saas.API.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class AuthController : ControllerBase
+    public class AuthController : BaseController
     {
         private readonly IAuthenticationService _authenticationService;
 
@@ -24,14 +21,14 @@ namespace Almacen.Saas.API.Controllers
         public async Task<ActionResult<LoginResponse>> Login([FromBody] LoginRequest loginRequest)
         {
             if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+                return BadRequest("Datos inválidos");
 
             var result = await _authenticationService.AuthenticateAsync(loginRequest);
 
             if (result == null)
-                return Unauthorized(new { message = "Email o contraseña inválidos" });
+                return BadRequest("Email o contraseña inválidos");
 
-            return Ok(result);
+            return Ok(result, "Autenticación exitosa");
         }
     }
 }
