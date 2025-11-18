@@ -74,7 +74,7 @@ public class UsuariosController : BaseController
         if (!result.Success)
             return BadRequest(result.Message, result.Errors);
 
-        return CreatedAtAction(nameof(ObtenerPorId), new { id = result.Data.Id }, result.Data);
+        return CreatedAtAction(nameof(ObtenerPorId), new { id = result.Data?.Id }, result.Data);
     }
 
     /// <summary>

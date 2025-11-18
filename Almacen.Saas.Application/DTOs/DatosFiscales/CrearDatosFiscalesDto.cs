@@ -10,7 +10,7 @@
         public string NumeroInterior { get; set; } = string.Empty;
         public string Referencia { get; set; } = string.Empty;
         public string CodigoPostal { get; set; } = string.Empty;
-        public int TipoPersona { get; set; } = string.Empty;
+        public int TipoPersona { get; set; }
         public int RegimenFiscalId { get; set; }
     }
 }
