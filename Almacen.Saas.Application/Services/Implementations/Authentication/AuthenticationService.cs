@@ -155,10 +155,10 @@ public class AuthenticationService : IAuthenticationService
 
         var claims = new List<Claim>
         {
-            new Claim(ClaimTypes.NameIdentifier, usuario.Id.ToString()),
-            new Claim(ClaimTypes.Email, usuario.Email),
-            new Claim(ClaimTypes.Name, usuario.Nombre),
-            new Claim(ClaimTypes.Role, usuario.Rol.ToString())
+            new(ClaimTypes.NameIdentifier, usuario.Id.ToString()),
+            new(ClaimTypes.Email, usuario.Email),
+            new(ClaimTypes.Name, usuario.Nombre),
+            new(ClaimTypes.Role, usuario.Rol.ToString())
         };
 
         var tokenDescriptor = new SecurityTokenDescriptor
