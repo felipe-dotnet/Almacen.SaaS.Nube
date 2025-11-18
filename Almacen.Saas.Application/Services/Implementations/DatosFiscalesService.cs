@@ -87,7 +87,7 @@ public class DatosFiscalesService : IDatosFiscalesService
             var datosFiscalesActualizar = dto.Adapt<DatosFiscales>();
             await _unitOfWork.Repository<DatosFiscales>().UpdateAsync(datosFiscalesActualizar);
             await _unitOfWork.SaveChangesAsync();
-            
+
             var datosFiscalesDto = datosFiscalesActualizar.Adapt<DatosFiscalesDto>();
             return Result<DatosFiscalesDto>.SuccessResult(datosFiscalesDto, "Datos fiscales actualizados exitosamente");
         }
@@ -99,15 +99,40 @@ public class DatosFiscalesService : IDatosFiscalesService
         }
     }
 
-
-
-    public Task<Result> EliminarAsync(int id)
+    public async Task<Result> EliminarAsync(int id)
     {
-        throw new NotImplementedException();
+        try
+        {
+            var existente = await _unitOfWork.Repository<DatosFiscales>().GetByIdAsync(id) ?? throw new Exception("Datos fiscales no encontrados");
+
+            await _unitOfWork.Repository<DatosFiscales>().DeleteAsync(existente);
+            await _unitOfWork.SaveChangesAsync();
+
+            _logger.LogInformation("Datos fiscales #{Id} eliminados", id);
+            return Result.SuccessResult("Datos fiscales eliminados exitosamente");
+
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError("Error al obtener los datos:{Message}", ex.Message);
+            return Result.FailureResult("Error al obtener los datos", [ex.Message]);
+        }
     }
 
-    public Task<Result<DatosFiscalesDto>> ObtenerPorClienteIdAsync(int id)
+    public async Task<Result<DatosFiscalesDto>> ObtenerPorClienteIdAsync(int id)
     {
-        throw new NotImplementedException();
-    }
+        try
+        {
+            var datosFiscales= await _unitOfWork.Repository<DatosFiscales>()
+                .FindAsync(df => df.UsuarioId == id) ?? throw new Exception("Datos fiscales no encontrados para el cliente especificado.");
+            var datosFiscalesDto = datosFiscales.Adapt<DatosFiscalesDto>();
+            return Result<DatosFiscalesDto>.SuccessResult(datosFiscalesDto, "Datos fiscales obtenidos exitosamente");
+
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError("Error al obtener los datos:{Message}", ex.Message);
+            return Result<DatosFiscalesDto>.FailureResult("Error al obtener los datos", [ex.Message]);
+        }
+    }    
 }

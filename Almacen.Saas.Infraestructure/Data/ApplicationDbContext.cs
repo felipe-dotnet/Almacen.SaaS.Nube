@@ -18,6 +18,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<Factura> Facturas => Set<Factura>();
     public DbSet<MovimientoInventario> MovimientosInventario => Set<MovimientoInventario>();
     public DbSet<Notificacion> Notificaciones => Set<Notificacion>();
+    public DbSet<DatosFiscales> DatosFiscales => Set<DatosFiscales>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
