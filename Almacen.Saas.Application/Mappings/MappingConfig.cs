@@ -1,5 +1,4 @@
 ﻿using Almacen.Saas.Application.DTOs.DatosFiscales;
-using Almacen.Saas.Application.DTOs.DatosFiscalesñ;
 using Almacen.Saas.Application.DTOs.Factura;
 using Almacen.Saas.Application.DTOs.MovimientoInventario;
 using Almacen.Saas.Application.DTOs.Notificacion;
