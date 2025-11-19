@@ -49,13 +49,13 @@ public class AuthenticationService : IAuthenticationService
             // Buscar usuario por email
             var usuarioBase = await _unitOfWork.Repository<Usuario>().GetAsync(x => x.Email == loginRequest.Email);
 
-            var usuario = usuarioBase.Adapt<UsuarioDto>();
-
-            if (usuario == null)
+            if (usuarioBase == null)
             {
                 _logger.LogWarning("Usuario no encontrado: {Email}", loginRequest.Email);
                 return null;
             }
+
+            var usuario = usuarioBase.Adapt<UsuarioDto>();
 
             // Verificar contraseña
             if (!_passwordHasher.VerifyPassword(usuario.PasswordHash, loginRequest.Password))
@@ -78,7 +78,7 @@ public class AuthenticationService : IAuthenticationService
             await _unitOfWork.Repository<RefreshToken>().AddAsync(new RefreshToken
             {
                 UsuarioId = usuario.Id,
-                JwtId = accessToken,
+                JwtId = string.Empty,
                 Token = refreshToken,
                 CreatedAt = DateTime.UtcNow,
                 ExpiresAt = DateTime.UtcNow.AddDays(7),
