@@ -13,10 +13,10 @@ public class RefreshTokenConfiguration : IEntityTypeConfiguration<RefreshToken>
 
         builder.Property(rt => rt.Token)
             .IsRequired()
-            .HasMaxLength(200);
+            .HasMaxLength(500);
         builder.Property(rt => rt.JwtId)
             .IsRequired()
-            .HasMaxLength(200);        
+            .HasMaxLength(500);        
         builder.Property(rt => rt.ExpiresAt)
             .IsRequired();
         builder.Property(rt => rt.CreatedAt)

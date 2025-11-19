@@ -55,17 +55,17 @@ public class AuthenticationService : IAuthenticationService
                 return null;
             }
 
-            var usuario = usuarioBase.Adapt<UsuarioDto>();
+            //var usuario = usuarioBase.Adapt<UsuarioDto>();
 
             // Verificar contraseña
-            if (!_passwordHasher.VerifyPassword(usuario.PasswordHash, loginRequest.Password))
+            if (!_passwordHasher.VerifyPassword(usuarioBase.PasswordHash, loginRequest.Password))
             {
                 _logger.LogWarning("Contraseña incorrecta para usuario: {Email}", loginRequest.Email);
                 return null;
             }
 
             // Generar JWT
-            string accessToken;
+            TokenResult accessToken;
             if (usuarioBase == null)
             {
                 _logger.LogWarning("Usuario no encontrado: {Email}", loginRequest.Email);
@@ -77,8 +77,8 @@ public class AuthenticationService : IAuthenticationService
             // Guardar refresh token
             await _unitOfWork.Repository<RefreshToken>().AddAsync(new RefreshToken
             {
-                UsuarioId = usuario.Id,
-                JwtId = string.Empty,
+                UsuarioId = usuarioBase.Id,
+                JwtId = accessToken.Jti,
                 Token = refreshToken,
                 CreatedAt = DateTime.UtcNow,
                 ExpiresAt = DateTime.UtcNow.AddDays(7),
@@ -92,13 +92,13 @@ public class AuthenticationService : IAuthenticationService
 
             return new LoginResponse
             {
-                UsuarioId = usuario.Id,
-                Email = usuario.Email,
-                Nombre = usuario.Nombre,
-                AccessToken = accessToken,
+                UsuarioId = usuarioBase.Id,
+                Email = usuarioBase.Email,
+                Nombre = usuarioBase.Nombre,
+                AccessToken = accessToken.AccessToken,
                 RefreshToken = refreshToken,
                 ExpiresAt = expiresAt,
-                Rol = usuario.Rol.ToString()
+                Rol = usuarioBase.Rol.ToString()
             };
         }
         catch (Exception ex)
@@ -154,17 +154,18 @@ public class AuthenticationService : IAuthenticationService
             : Guid.NewGuid().ToString("N");
     }
 
-    private string GenerateAccessToken(Usuario usuario)
+    private TokenResult GenerateAccessToken(Usuario usuario)
     {
         var tokenHandler = new JwtSecurityTokenHandler();
         var key = Encoding.ASCII.GetBytes(_jwtSettings.SecretKey);
-
+        var jti = Guid.NewGuid().ToString();
         var claims = new List<Claim>
         {
             new(ClaimTypes.NameIdentifier, usuario.Id.ToString()),
             new(ClaimTypes.Email, usuario.Email),
             new(ClaimTypes.Name, usuario.Nombre),
-            new(ClaimTypes.Role, usuario.Rol.ToString())
+            new(ClaimTypes.Role, usuario.Rol.ToString(),
+            new(JwtRegisteredClaimNames.Jti),jti)            
         };
 
         var tokenDescriptor = new SecurityTokenDescriptor
@@ -179,7 +180,12 @@ public class AuthenticationService : IAuthenticationService
         };
 
         var token = tokenHandler.CreateToken(tokenDescriptor);
-        return tokenHandler.WriteToken(token);
+
+        return new TokenResult
+        {
+            AccessToken = tokenHandler.WriteToken(token),
+            Jti = jti
+        };
     }
 
     public async Task<LoginResponse?> RefreshTokenAsync(string refreshToken)
@@ -209,13 +215,13 @@ public class AuthenticationService : IAuthenticationService
         await _unitOfWork.Repository<RefreshToken>().UpdateAsync(existingToken);
 
         // 4. Generar nuevos tokens
-        string newAccessToken = GenerateAccessToken(usuario);
+        TokenResult newAccessToken = GenerateAccessToken(usuario);
         string newRefreshToken = Guid.NewGuid().ToString("N");
 
         await _unitOfWork.Repository<RefreshToken>().AddAsync(new RefreshToken
         {
             UsuarioId = usuario.Id,
-            JwtId = newAccessToken,
+            JwtId = newAccessToken.Jti,
             Token = newRefreshToken,
             CreatedAt = DateTime.UtcNow,
             ExpiresAt = DateTime.UtcNow.AddDays(7),
@@ -231,10 +237,24 @@ public class AuthenticationService : IAuthenticationService
             UsuarioId = usuario.Id,
             Email = usuario.Email,
             Nombre = usuario.Nombre,
-            AccessToken = newAccessToken,
+            AccessToken = newAccessToken.AccessToken,
             RefreshToken = newRefreshToken,
             ExpiresAt = DateTime.UtcNow.AddMinutes(_jwtSettings.ExpirationMinutes),
             Rol = usuario.Rol.ToString()
         };
+    }
+    public async Task<bool> LogoutAsync(string refreshToken)
+    {
+        // Busca el refresh token válido en BD
+        var tokenInDb = await _unitOfWork.Repository<RefreshToken>()
+            .GetAsync(rt => rt.Token == refreshToken && !rt.IsRevoked && rt.ExpiresAt > DateTime.UtcNow);
+
+        if (tokenInDb == null)
+            return false; // No existe o ya está revocado
+
+        tokenInDb.IsRevoked = true;
+        await _unitOfWork.Repository<RefreshToken>().UpdateAsync(tokenInDb);
+        await _unitOfWork.SaveChangesAsync();
+        return true;
     }
 }

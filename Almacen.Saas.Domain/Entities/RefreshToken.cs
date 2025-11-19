@@ -9,5 +9,5 @@ public class RefreshToken:BaseEntity
     public DateTime CreatedAt { get; set; }
     public DateTime ExpiresAt { get; set; }
     public bool IsRevoked { get; set; }
-    public Usuario Usuario { get; set; } = new();
+    public Usuario? Usuario { get; set; }
 }

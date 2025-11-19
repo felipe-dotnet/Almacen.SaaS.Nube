@@ -40,5 +40,14 @@ namespace Almacen.Saas.API.Controllers
                 return Unauthorized();
             return Ok(response);
         }
+
+        [HttpPost("logout")]
+        public async Task<IActionResult> Logout([FromBody] LogoutRequest request)
+        {
+            var resultado = await _authenticationService.LogoutAsync(request.RefreshToken);
+            if (!resultado)
+                return BadRequest("Logout fallido.");
+            return Ok("Sesión cerrada correctamente.");
+        }
     }
 }
