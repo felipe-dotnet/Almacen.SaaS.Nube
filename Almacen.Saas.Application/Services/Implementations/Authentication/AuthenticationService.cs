@@ -60,7 +60,7 @@ public class AuthenticationService : IAuthenticationService
             }
 
             // Verificar contraseña
-            if (!_passwordHasher.VerifyPassword(usuario.PasswordHashed, loginRequest.Password))
+            if (!_passwordHasher.VerifyPassword(usuario.PasswordHash, loginRequest.Password))
             {
                 _logger.LogWarning("Contraseña incorrecta para usuario: {Email}", loginRequest.Email);
                 return null;

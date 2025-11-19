@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Almacen.Saas.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public abstract class BaseController : ControllerBase
 {
     /// <summary>

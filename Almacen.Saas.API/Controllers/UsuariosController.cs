@@ -1,11 +1,13 @@
 ﻿using Almacen.Saas.Application.DTOs.Usuario;
 using Almacen.Saas.Application.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Almacen.Saas.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class UsuariosController : BaseController
 {
     private readonly IUsuarioService _usuarioService;
