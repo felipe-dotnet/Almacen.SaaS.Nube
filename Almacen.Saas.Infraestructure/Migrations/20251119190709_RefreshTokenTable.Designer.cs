@@ -4,6 +4,7 @@ using Almacen.Saas.Infraestructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Almacen.Saas.Infraestructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251119190709_RefreshTokenTable")]
+    partial class RefreshTokenTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -550,9 +553,14 @@ namespace Almacen.Saas.Infraestructure.Migrations
                     b.Property<int>("UsuarioId")
                         .HasColumnType("int");
 
+                    b.Property<int?>("UsuarioId1")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.HasIndex("UsuarioId");
+
+                    b.HasIndex("UsuarioId1");
 
                     b.ToTable("RefreshTokens", (string)null);
                 });
@@ -775,13 +783,15 @@ namespace Almacen.Saas.Infraestructure.Migrations
 
             modelBuilder.Entity("Almacen.Saas.Domain.Entities.RefreshToken", b =>
                 {
-                    b.HasOne("Almacen.Saas.Domain.Entities.Usuario", "Usuario")
-                        .WithMany("RefresTokens")
+                    b.HasOne("Almacen.Saas.Domain.Entities.Usuario", null)
+                        .WithMany()
                         .HasForeignKey("UsuarioId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Usuario");
+                    b.HasOne("Almacen.Saas.Domain.Entities.Usuario", null)
+                        .WithMany("RefresTokens")
+                        .HasForeignKey("UsuarioId1");
                 });
 
             modelBuilder.Entity("Almacen.Saas.Domain.Entities.Pedido", b =>

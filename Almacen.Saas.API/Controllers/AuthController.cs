@@ -31,5 +31,14 @@ namespace Almacen.Saas.API.Controllers
 
             return Ok(result, "Autenticación exitosa");
         }
+
+        [HttpPost("refresh")]
+        public async Task<IActionResult> Refresh([FromBody] RefreshTokenRequest request)
+        {
+            var response = await _authenticationService.RefreshTokenAsync(request.RefreshToken);
+            if (response == null)
+                return Unauthorized();
+            return Ok(response);
+        }
     }
 }

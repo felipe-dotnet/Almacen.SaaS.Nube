@@ -9,6 +9,7 @@ using Mapster;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.VisualBasic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -39,19 +40,16 @@ public class AuthenticationService : IAuthenticationService
 
     public async Task<LoginResponse?> AuthenticateAsync(LoginRequest loginRequest)
     {
-        if (loginRequest == null)
-        {
-            throw new ArgumentNullException(nameof(loginRequest));
-        }
+        ArgumentNullException.ThrowIfNull(loginRequest);
 
         _logger.LogInformation("Intento de autenticación para: {Email}", loginRequest.Email);
 
         try
         {
             // Buscar usuario por email
-            var usuarioBase = await _unitOfWork.Repository<Usuario>().GetAsync(x=>x.Email==loginRequest.Email);
+            var usuarioBase = await _unitOfWork.Repository<Usuario>().GetAsync(x => x.Email == loginRequest.Email);
 
-            var usuario=usuarioBase.Adapt<UsuarioDto>();
+            var usuario = usuarioBase.Adapt<UsuarioDto>();
 
             if (usuario == null)
             {
@@ -76,9 +74,17 @@ public class AuthenticationService : IAuthenticationService
             accessToken = GenerateAccessToken(usuarioBase);
             var refreshToken = Guid.NewGuid().ToString("N");
 
-            // Guardar refresh token (opcional - depende de tu BD)
-            // await _unitOfWork.RefreshTokens.AddAsync(new RefreshToken { UsuarioId = usuario.Id, Token = refreshToken });
-            // await _unitOfWork.SaveChangesAsync();
+            // Guardar refresh token
+            await _unitOfWork.Repository<RefreshToken>().AddAsync(new RefreshToken
+            {
+                UsuarioId = usuario.Id,
+                JwtId = accessToken,
+                Token = refreshToken,
+                CreatedAt = DateTime.UtcNow,
+                ExpiresAt = DateTime.UtcNow.AddDays(7),
+                IsRevoked = false,
+            });
+            await _unitOfWork.SaveChangesAsync();
 
             var expiresAt = DateTime.UtcNow.AddMinutes(_jwtSettings.ExpirationMinutes);
 
@@ -174,5 +180,61 @@ public class AuthenticationService : IAuthenticationService
 
         var token = tokenHandler.CreateToken(tokenDescriptor);
         return tokenHandler.WriteToken(token);
+    }
+
+    public async Task<LoginResponse?> RefreshTokenAsync(string refreshToken)
+    {
+        _logger.LogInformation("Solicitando refresh para token: {RefreshToken}", refreshToken);
+
+        // 1. Buscar token en BD, válido y no revocado
+        var existingToken = await _unitOfWork.Repository<RefreshToken>()
+            .GetAsync(rt => rt.Token == refreshToken && !rt.IsRevoked && rt.ExpiresAt > DateTime.UtcNow);
+
+        if (existingToken == null)
+        {
+            _logger.LogWarning("Refresh token inválido o expirado: {RefreshToken}", refreshToken);
+            return null;
+        }
+
+        // 2. Recuperar usuario
+        var usuario = await _unitOfWork.Repository<Usuario>().GetByIdAsync(existingToken.UsuarioId);
+        if (usuario == null)
+        {
+            _logger.LogWarning("Usuario no encontrado para refresh token: {RefreshToken}", refreshToken);
+            return null;
+        }
+
+        // 3. Revocar el refresh token anterior
+        existingToken.IsRevoked = true;
+        await _unitOfWork.Repository<RefreshToken>().UpdateAsync(existingToken);
+
+        // 4. Generar nuevos tokens
+        string newAccessToken = GenerateAccessToken(usuario);
+        string newRefreshToken = Guid.NewGuid().ToString("N");
+
+        await _unitOfWork.Repository<RefreshToken>().AddAsync(new RefreshToken
+        {
+            UsuarioId = usuario.Id,
+            JwtId = newAccessToken,
+            Token = newRefreshToken,
+            CreatedAt = DateTime.UtcNow,
+            ExpiresAt = DateTime.UtcNow.AddDays(7),
+            IsRevoked = false
+        });
+
+        await _unitOfWork.SaveChangesAsync();
+
+        _logger.LogInformation("Refresh token exitoso para usuario: {Email}", usuario.Email);
+
+        return new LoginResponse
+        {
+            UsuarioId = usuario.Id,
+            Email = usuario.Email,
+            Nombre = usuario.Nombre,
+            AccessToken = newAccessToken,
+            RefreshToken = newRefreshToken,
+            ExpiresAt = DateTime.UtcNow.AddMinutes(_jwtSettings.ExpirationMinutes),
+            Rol = usuario.Rol.ToString()
+        };
     }
 }

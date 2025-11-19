@@ -82,6 +82,11 @@ public class UsuarioConfiguration : IEntityTypeConfiguration<Usuario>
         builder.HasMany(x => x.DatosFiscales)
             .WithOne(u => u.Usuario)
             .HasForeignKey(u=>u.UsuarioId)
-            .OnDelete(DeleteBehavior.Cascade);            
+            .OnDelete(DeleteBehavior.Cascade);
+       
+        builder.HasMany(u => u.RefresTokens)
+            .WithOne(r => r.Usuario)
+            .HasForeignKey(r => r.UsuarioId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

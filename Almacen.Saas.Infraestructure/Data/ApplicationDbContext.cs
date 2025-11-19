@@ -19,6 +19,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<MovimientoInventario> MovimientosInventario => Set<MovimientoInventario>();
     public DbSet<Notificacion> Notificaciones => Set<Notificacion>();
     public DbSet<DatosFiscales> DatosFiscales => Set<DatosFiscales>();
+    public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

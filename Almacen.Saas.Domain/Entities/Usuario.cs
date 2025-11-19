@@ -28,4 +28,5 @@ public class Usuario : BaseEntity, IAuditableEntity
     public ICollection<Pedido> Pedidos { get; set; } = [];
     public ICollection<Notificacion> Notificaciones { get; set; } =[];
     public ICollection<DatosFiscales> DatosFiscales { get; set; } = [];
+    public ICollection<RefreshToken> RefresTokens { get; set; } = [];
 }
