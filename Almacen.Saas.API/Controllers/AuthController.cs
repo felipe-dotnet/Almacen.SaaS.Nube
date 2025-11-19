@@ -1,6 +1,8 @@
-using Almacen.Saas.Application.DTO.Authentication;
+using Almacen.Saas.Application.Services.Authentication;
 using Almacen.Saas.Application.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 
 namespace Almacen.Saas.API.Controllers
 {
@@ -18,15 +20,15 @@ namespace Almacen.Saas.API.Controllers
         /// </summary>
         [HttpPost("login")]
         [AllowAnonymous]
-        public async Task<ActionResult<LoginResponse>> Login([FromBody] LoginRequest loginRequest)
+        public async Task<IActionResult> Login([FromBody] LoginRequest loginRequest)
         {
             if (!ModelState.IsValid)
-                return BadRequest("Datos inválidos");
+                return BadRequest("Datos inválidos",["Modelo no valido"]);
 
             var result = await _authenticationService.AuthenticateAsync(loginRequest);
 
             if (result == null)
-                return BadRequest("Email o contraseña inválidos");
+                return BadRequest("Email o contraseña inválidos",["Email o contraseña inválidos"]);
 
             return Ok(result, "Autenticación exitosa");
         }
