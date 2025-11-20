@@ -18,7 +18,7 @@ public class AuthControllerTest:IClassFixture<IntegrationTestFixture>
         var payload = new
         {
             Email = "usuario@prueba.com",
-            Password = "Password123!"
+            Password = "123456"
         };
 
         var jsonPayload = JsonConvert.SerializeObject(payload);

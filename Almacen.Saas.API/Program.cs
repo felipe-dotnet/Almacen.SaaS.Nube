@@ -309,3 +309,6 @@ app.Lifetime.ApplicationStarted.Register(() =>
 });
 
 app.Run();
+
+// Solamente para soporte de tests de integración:
+public partial class Program { }
