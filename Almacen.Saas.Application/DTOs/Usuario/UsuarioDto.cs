@@ -9,7 +9,11 @@ public class UsuarioDto
     public string Email { get; set; } = string.Empty;
     public string Telefono { get; set; } = string.Empty;
     public string Rol { get; set; } = string.Empty;
+<<<<<<< HEAD
     public string PasswordHashed { get; set; } = string.Empty;
+=======
+    public string PasswordHash { get; set; } = string.Empty;
+>>>>>>> Desa01
 
     // Dirección
     public string Calle { get; set; } = string.Empty;

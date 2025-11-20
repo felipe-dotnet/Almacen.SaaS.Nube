@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.14.36518.9
+# Visual Studio Version 18
+VisualStudioVersion = 18.0.11205.157 d18.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Almacen.Saas.Domain", "Almacen.Saas.Domain.csproj", "{82BB57CD-523E-4D03-90CD-1B862E3C8D59}"
 EndProject
@@ -12,6 +12,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Almacen.Sass.Web", "..\Almacen.Sass.Web\Almacen.Sass.Web.csproj", "{B0A07C8D-C297-4871-A3C5-7A3830E8955C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Almacen.Saas.API", "..\Almacen.Saas.API\Almacen.Saas.API.csproj", "{ED9A6C3B-9F9E-4739-9B12-8EFA6D83919B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Almacen.Saas.API.Test", "..\Almacen.Saas.API.Test\Almacen.Saas.API.Test.csproj", "{D68ADB4B-CD43-412A-A801-38BDF09580E1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +41,10 @@ Global
 		{ED9A6C3B-9F9E-4739-9B12-8EFA6D83919B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ED9A6C3B-9F9E-4739-9B12-8EFA6D83919B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ED9A6C3B-9F9E-4739-9B12-8EFA6D83919B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D68ADB4B-CD43-412A-A801-38BDF09580E1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D68ADB4B-CD43-412A-A801-38BDF09580E1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D68ADB4B-CD43-412A-A801-38BDF09580E1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D68ADB4B-CD43-412A-A801-38BDF09580E1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

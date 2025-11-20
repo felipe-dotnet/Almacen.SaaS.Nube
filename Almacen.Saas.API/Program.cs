@@ -1,10 +1,7 @@
-﻿using Almacen.Saas.Application.DTOs.Usuario;
-using Almacen.Saas.Application.Mappings;
+﻿using Almacen.Saas.Application.Mappings;
 using Almacen.Saas.Application.Services.Implementations;
 using Almacen.Saas.Application.Services.Interfaces;
 using Almacen.Saas.Application.Services.Utilities;
-using Almacen.Saas.Domain.Entities;
-using Almacen.Saas.Domain.Enums;
 using Almacen.Saas.Domain.Interfaces;
 using Almacen.Saas.Domain.Services;
 using Almacen.Saas.Domain.Settings;
@@ -15,6 +12,11 @@ using MapsterMapper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerUI;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using Almacen.Saas.Application.Services.Authentication;
+using Almacen.Saas.Application.Services.Implementations.Authentication;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -44,6 +46,10 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("Email"));
 builder.Services.Configure<WhatsAppSettings>(builder.Configuration.GetSection("WhatsApp"));
 
+builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
+var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>()
+    ?? throw new InvalidOperationException("JwtSettings not found in configuration");
+
 // ============================================================
 // 3. MAPSTER - MAPEO DE OBJETOS
 // ============================================================
@@ -71,6 +77,43 @@ builder.Services.AddScoped<IFacturaService, FacturaService>();
 builder.Services.AddScoped<IMovimientoInventarioService, MovimientoInventarioService>();
 builder.Services.AddScoped<INotificacionService, NotificacionService>();
 builder.Services.AddScoped<IDashboardService, DashboardService>();
+builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
+
+// ============================================================
+// 5.1 AUTENTICACIÓN JWT
+// ============================================================
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.SecretKey)),
+        ValidateIssuer = true,
+        ValidIssuer = jwtSettings.Issuer,
+        ValidateAudience = true,
+        ValidAudience = jwtSettings.Audience,
+        ValidateLifetime = true,
+        ClockSkew = TimeSpan.Zero
+    };
+    options.Events = new JwtBearerEvents
+    {
+        OnAuthenticationFailed = context =>
+        {
+            Console.WriteLine($"Token validation failed: {context.Exception.Message}");
+            return Task.CompletedTask;
+        },
+        OnTokenValidated = context =>
+        {
+            Console.WriteLine("Token validated successfully");
+            return Task.CompletedTask;
+        }
+    };
+});
 
 // ============================================================
 // 6. SWAGGER - DOCUMENTACIÓN API
@@ -94,7 +137,36 @@ builder.Services.AddSwaggerGen(options =>
             Url = new Uri("https://opensource.org/licenses/MIT")
         },
         TermsOfService = new Uri("https://www.tuempresa.com/terms")
+
+
     });
+
+    // Configuración de seguridad para JWT en Swagger
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        In = ParameterLocation.Header,
+        Description = "Por favor ingresa tu token JWT",
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        BearerFormat = "JWT",
+        Scheme = "bearer"
+    });
+
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+{
+    {
+        new OpenApiSecurityScheme
+        {
+            Reference = new OpenApiReference
+            {
+                Type = ReferenceType.SecurityScheme,
+                Id = "Bearer"
+            }
+        },
+
+        Array.Empty<string>()
+    }
+});
 
     // Comentarios XML para documentación
     var xmlFile = "Almacen.Saas.API.xml";
@@ -237,3 +309,6 @@ app.Lifetime.ApplicationStarted.Register(() =>
 });
 
 app.Run();
+
+// Solamente para soporte de tests de integración:
+public partial class Program { }

@@ -1,12 +1,13 @@
 ﻿using Almacen.Saas.Domain.Entities;
 using Almacen.Saas.Domain.Interfaces;
-using Almacen.Saas.Infraestructure.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Almacen.Saas.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class TestController : ControllerBase
     {
         private readonly IUnitOfWork _unitOfWork;

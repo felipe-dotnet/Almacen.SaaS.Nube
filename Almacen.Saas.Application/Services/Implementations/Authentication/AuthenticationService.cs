@@ -9,6 +9,10 @@ using Mapster;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+<<<<<<< HEAD
+=======
+using Microsoft.VisualBasic;
+>>>>>>> Desa01
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -39,35 +43,56 @@ public class AuthenticationService : IAuthenticationService
 
     public async Task<LoginResponse?> AuthenticateAsync(LoginRequest loginRequest)
     {
+<<<<<<< HEAD
         if (loginRequest == null)
         {
             throw new ArgumentNullException(nameof(loginRequest));
         }
+=======
+        ArgumentNullException.ThrowIfNull(loginRequest);
+>>>>>>> Desa01
 
         _logger.LogInformation("Intento de autenticación para: {Email}", loginRequest.Email);
 
         try
         {
             // Buscar usuario por email
+<<<<<<< HEAD
             var usuarioBase = await _unitOfWork.Repository<Usuario>().GetAsync(x=>x.Email==loginRequest.Email);
 
             var usuario=usuarioBase.Adapt<UsuarioDto>();
 
             if (usuario == null)
+=======
+            var usuarioBase = await _unitOfWork.Repository<Usuario>().GetAsync(x => x.Email == loginRequest.Email);
+
+            if (usuarioBase == null)
+>>>>>>> Desa01
             {
                 _logger.LogWarning("Usuario no encontrado: {Email}", loginRequest.Email);
                 return null;
             }
 
+<<<<<<< HEAD
             // Verificar contraseña
             if (!_passwordHasher.VerifyPassword(usuario.PasswordHashed, loginRequest.Password))
+=======
+            //var usuario = usuarioBase.Adapt<UsuarioDto>();
+
+            // Verificar contraseña
+            if (!_passwordHasher.VerifyPassword(usuarioBase.PasswordHash, loginRequest.Password))
+>>>>>>> Desa01
             {
                 _logger.LogWarning("Contraseña incorrecta para usuario: {Email}", loginRequest.Email);
                 return null;
             }
 
             // Generar JWT
+<<<<<<< HEAD
             string accessToken;
+=======
+            TokenResult accessToken;
+>>>>>>> Desa01
             if (usuarioBase == null)
             {
                 _logger.LogWarning("Usuario no encontrado: {Email}", loginRequest.Email);
@@ -76,9 +101,23 @@ public class AuthenticationService : IAuthenticationService
             accessToken = GenerateAccessToken(usuarioBase);
             var refreshToken = Guid.NewGuid().ToString("N");
 
+<<<<<<< HEAD
             // Guardar refresh token (opcional - depende de tu BD)
             // await _unitOfWork.RefreshTokens.AddAsync(new RefreshToken { UsuarioId = usuario.Id, Token = refreshToken });
             // await _unitOfWork.SaveChangesAsync();
+=======
+            // Guardar refresh token
+            await _unitOfWork.Repository<RefreshToken>().AddAsync(new RefreshToken
+            {
+                UsuarioId = usuarioBase.Id,
+                JwtId = accessToken.Jti,
+                Token = refreshToken,
+                CreatedAt = DateTime.UtcNow,
+                ExpiresAt = DateTime.UtcNow.AddDays(7),
+                IsRevoked = false,
+            });
+            await _unitOfWork.SaveChangesAsync();
+>>>>>>> Desa01
 
             var expiresAt = DateTime.UtcNow.AddMinutes(_jwtSettings.ExpirationMinutes);
 
@@ -86,6 +125,7 @@ public class AuthenticationService : IAuthenticationService
 
             return new LoginResponse
             {
+<<<<<<< HEAD
                 UsuarioId = usuario.Id,
                 Email = usuario.Email,
                 Nombre = usuario.Nombre,
@@ -93,6 +133,15 @@ public class AuthenticationService : IAuthenticationService
                 RefreshToken = refreshToken,
                 ExpiresAt = expiresAt,
                 Rol = usuario.Rol.ToString()
+=======
+                UsuarioId = usuarioBase.Id,
+                Email = usuarioBase.Email,
+                Nombre = usuarioBase.Nombre,
+                AccessToken = accessToken.AccessToken,
+                RefreshToken = refreshToken,
+                ExpiresAt = expiresAt,
+                Rol = usuarioBase.Rol.ToString()
+>>>>>>> Desa01
             };
         }
         catch (Exception ex)
@@ -148,17 +197,30 @@ public class AuthenticationService : IAuthenticationService
             : Guid.NewGuid().ToString("N");
     }
 
+<<<<<<< HEAD
     private string GenerateAccessToken(Usuario usuario)
     {
         var tokenHandler = new JwtSecurityTokenHandler();
         var key = Encoding.ASCII.GetBytes(_jwtSettings.SecretKey);
 
+=======
+    private TokenResult GenerateAccessToken(Usuario usuario)
+    {
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var key = Encoding.ASCII.GetBytes(_jwtSettings.SecretKey);
+        var jti = Guid.NewGuid().ToString();
+>>>>>>> Desa01
         var claims = new List<Claim>
         {
             new(ClaimTypes.NameIdentifier, usuario.Id.ToString()),
             new(ClaimTypes.Email, usuario.Email),
             new(ClaimTypes.Name, usuario.Nombre),
+<<<<<<< HEAD
             new(ClaimTypes.Role, usuario.Rol.ToString())
+=======
+            new(ClaimTypes.Role, usuario.Rol.ToString(),
+            new(JwtRegisteredClaimNames.Jti),jti)            
+>>>>>>> Desa01
         };
 
         var tokenDescriptor = new SecurityTokenDescriptor
@@ -173,6 +235,85 @@ public class AuthenticationService : IAuthenticationService
         };
 
         var token = tokenHandler.CreateToken(tokenDescriptor);
+<<<<<<< HEAD
         return tokenHandler.WriteToken(token);
+=======
+
+        return new TokenResult
+        {
+            AccessToken = tokenHandler.WriteToken(token),
+            Jti = jti
+        };
+    }
+
+    public async Task<LoginResponse?> RefreshTokenAsync(string refreshToken)
+    {
+        _logger.LogInformation("Solicitando refresh para token: {RefreshToken}", refreshToken);
+
+        // 1. Buscar token en BD, válido y no revocado
+        var existingToken = await _unitOfWork.Repository<RefreshToken>()
+            .GetAsync(rt => rt.Token == refreshToken && !rt.IsRevoked && rt.ExpiresAt > DateTime.UtcNow);
+
+        if (existingToken == null)
+        {
+            _logger.LogWarning("Refresh token inválido o expirado: {RefreshToken}", refreshToken);
+            return null;
+        }
+
+        // 2. Recuperar usuario
+        var usuario = await _unitOfWork.Repository<Usuario>().GetByIdAsync(existingToken.UsuarioId);
+        if (usuario == null)
+        {
+            _logger.LogWarning("Usuario no encontrado para refresh token: {RefreshToken}", refreshToken);
+            return null;
+        }
+
+        // 3. Revocar el refresh token anterior
+        existingToken.IsRevoked = true;
+        await _unitOfWork.Repository<RefreshToken>().UpdateAsync(existingToken);
+
+        // 4. Generar nuevos tokens
+        TokenResult newAccessToken = GenerateAccessToken(usuario);
+        string newRefreshToken = Guid.NewGuid().ToString("N");
+
+        await _unitOfWork.Repository<RefreshToken>().AddAsync(new RefreshToken
+        {
+            UsuarioId = usuario.Id,
+            JwtId = newAccessToken.Jti,
+            Token = newRefreshToken,
+            CreatedAt = DateTime.UtcNow,
+            ExpiresAt = DateTime.UtcNow.AddDays(7),
+            IsRevoked = false
+        });
+
+        await _unitOfWork.SaveChangesAsync();
+
+        _logger.LogInformation("Refresh token exitoso para usuario: {Email}", usuario.Email);
+
+        return new LoginResponse
+        {
+            UsuarioId = usuario.Id,
+            Email = usuario.Email,
+            Nombre = usuario.Nombre,
+            AccessToken = newAccessToken.AccessToken,
+            RefreshToken = newRefreshToken,
+            ExpiresAt = DateTime.UtcNow.AddMinutes(_jwtSettings.ExpirationMinutes),
+            Rol = usuario.Rol.ToString()
+        };
+    }
+    public async Task<bool> LogoutAsync(string refreshToken)
+    {
+        // Busca el refresh token válido en BD
+        var tokenInDb = await _unitOfWork.Repository<RefreshToken>()
+            .GetAsync(rt => rt.Token == refreshToken && !rt.IsRevoked && rt.ExpiresAt > DateTime.UtcNow);
+
+        if (tokenInDb == null)
+            return false; // No existe o ya está revocado
+
+        tokenInDb.IsRevoked = true;
+        await _unitOfWork.Repository<RefreshToken>().UpdateAsync(tokenInDb);
+        await _unitOfWork.SaveChangesAsync();
+        return true;
+>>>>>>> Desa01
     }
 }

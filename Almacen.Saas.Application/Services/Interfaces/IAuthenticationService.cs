@@ -28,4 +28,21 @@ public interface IAuthenticationService
     /// <param name="usuarioId">ID del usuario</param>
     /// <returns>Nuevo refresh token</returns>
     Task<string> GenerateRefreshTokenAsync(int usuarioId);
+<<<<<<< HEAD
+=======
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="refreshToken"></param>
+    /// <returns></returns>
+    Task<LoginResponse?> RefreshTokenAsync(string refreshToken);
+
+    /// <summary>
+    /// Logout de un usuario invalidando el refresh token
+    /// </summary>
+    /// <param name="refreshToken"></param>
+    /// <returns></returns>
+    Task<bool> LogoutAsync(string refreshToken);
+>>>>>>> Desa01
 }
