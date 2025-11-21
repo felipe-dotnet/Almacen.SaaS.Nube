@@ -5,7 +5,7 @@ namespace Almacen.Saas.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize]
+//[Authorize]
 public abstract class BaseController : ControllerBase
 {
     /// <summary>

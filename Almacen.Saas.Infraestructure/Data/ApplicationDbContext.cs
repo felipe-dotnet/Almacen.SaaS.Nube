@@ -20,6 +20,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<Notificacion> Notificaciones => Set<Notificacion>();
     public DbSet<DatosFiscales> DatosFiscales => Set<DatosFiscales>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
+    public DbSet<PasswordResetToken> PasswordResetTokens => Set<PasswordResetToken>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

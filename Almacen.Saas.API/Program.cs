@@ -66,6 +66,7 @@ builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 builder.Services.AddScoped<IEmailService, SmtpEmailService>();
 builder.Services.AddScoped<IWhatsAppService, TwilioWhatsAppService>();
 builder.Services.AddScoped<INotificacionChannelService, NotificacionChannelService>();
+builder.Services.AddScoped<IPasswordRecoveryService, PasswordRecoveryService>();
 
 // ============================================================
 // 5. REGISTRAR SERVICIOS DE APLICACIÓN

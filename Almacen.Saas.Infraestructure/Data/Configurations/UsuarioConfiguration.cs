@@ -88,5 +88,10 @@ public class UsuarioConfiguration : IEntityTypeConfiguration<Usuario>
             .WithOne(r => r.Usuario)
             .HasForeignKey(r => r.UsuarioId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasMany(u => u.PasswordResetToken)
+            .WithOne(pr => pr.Usuario)
+            .HasForeignKey(pr => pr.UsuarioId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

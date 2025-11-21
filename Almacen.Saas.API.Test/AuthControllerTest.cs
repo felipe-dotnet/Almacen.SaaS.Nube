@@ -12,7 +12,7 @@ public class AuthControllerTest:IClassFixture<IntegrationTestFixture>
     }
 
     [Fact]
-    public async Task Login_With_ValidCredentials_ReturnsTokens()
+    public async Task LoginWithValidCredentialsReturnsTokens()
     {
         // Definir el payload con usuario de prueba (asegúrate que existe en la base)
         var payload = new
